@@ -36,7 +36,7 @@ a = true;
 console.log('a', a);
 
 let nama;
-const ra; //ga bisa deklarasi
+// const ra; //ga bisa deklarasi
 
 //**
 let arr = [3.6,2,'hello',7];
