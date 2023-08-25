@@ -1,0 +1,41 @@
+footer {
+    background-color: aquamarine;
+}
+
+.fb {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    max-width: 500px;
+    min-width: 500px;
+}
+
+.fb-down {
+    display: flex;
+    flex-flow: column wrap;
+    justify-content: space-evenly;
+}
+
+.ad-itm {
+    display: flex;
+    width: 200px;
+    justify-content: space-between;
+    align-items: center;
+    margin: 5px;
+}
+
+.card {
+    background-color: gray;
+    border-radius: 0.5rem;
+    width: 150px;
+    height: 30vh;
+    margin-bottom: 10px;
+    display: grid;
+    place-items: center;
+}
+
+img {
+    border-radius: 5px;
+    height: 80%;
+    width: 60%;
+}
