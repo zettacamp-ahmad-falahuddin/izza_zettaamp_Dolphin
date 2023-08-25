@@ -1,0 +1,45 @@
+.judul {
+    position: fixed;
+    background-color: aqua;
+    width: 100%;
+    top: 0px;
+    left: 0px;
+}
+
+h1 {
+    margin: 0px;
+}
+
+.r1 {
+    display: flex;
+    margin: 0px;
+    gap: 10px;
+}
+
+.r2 {
+    display: flex;
+    margin: 1rem 0rem;
+    gap: 10px;
+}
+
+.r3 {
+    display: flex;
+    margin: 0px;
+    gap: 10px;
+}
+
+.card {
+    background-color: gray;
+    border-radius: 5px;
+    width: 150px;
+    height: 200px;
+    display: grid;
+    place-items: center;
+
+}
+
+img {
+    border-radius: 5px;
+    height: 80%;
+    width: 60%;
+}

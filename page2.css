@@ -1,0 +1,13 @@
+.item {
+    height: 100px;
+    width: 200px;
+    overflow: scroll;
+    background-color: bisque;
+}
+
+.item-sold {
+    height: 80px;
+    width: 200px;
+    overflow: scroll;
+    background-color: chocolate;
+}
