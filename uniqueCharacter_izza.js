@@ -11,19 +11,20 @@ console.log(hasUniqueCharacters("hello")); // Output: false
 
 function hasUniqueCharacters(str) {
     countSame = 0;
-    for (let i = 0; i < str.length; i++) {
-        for (let j = i+1; j < str.length; j++) {
+    for (let i = 0; i < str.length; i++) { // iterasi per huruf
+        for (let j = i+1; j < str.length; j++) { //tiap iterasi iterasiin lagi dengan belakangnya
             if (str[i] === str[j]) {
                 countSame += 1;
             }
         }
     }
-    if (countSame === 0) {
-        return true;
-    } else {
-        return false;
-    }
+    // if (countSame === 0) {
+    //     return true;
+    // } else {
+    //     return false;
+    // }
+    return !countSame;  //truthy falsy
 }
 
-console.log(hasUniqueCharacters("abcdefg")); // Output: true
-console.log(hasUniqueCharacters("hello")); // Output: false
+console.log(hasUniqueCharacters("bacdefg")); // Output: true
+console.log(hasUniqueCharacters("lhelo")); // Output: false

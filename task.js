@@ -16,19 +16,21 @@ function purchase(book, purchased, stock, discountPercentage, taxPercentage) {
     //     console.log('book cannot be bought');
     // }
 
-    for (let i = 1; i < purchased+1; i++) {
+    for (let i = 1; i <= purchased; i++) {
         stock -= 1;
         if (stock === 0) {
             console.log('out of stock, cannot be purchased again');
+            console.log('the book price is', parseInt(i*prcAftTax));
             break;
         }
     }
-
-    console.log('stock now:', stock);
+    
     if (stock > 0) {
+        console.log('the book price is', parseInt(purchased*prcAftTax));
         console.log('can be purchased again');
     }
-    console.log('the book price is', parseInt(purchased*prcAftTax));
+
+    console.log('stock now:', stock);
 }
 
 const pulang = {
@@ -37,4 +39,4 @@ const pulang = {
     price: 50000,
 }
 
-purchase(pulang, 6, 10, 5, 10);
+purchase(pulang, 11, 10, 5, 10);
