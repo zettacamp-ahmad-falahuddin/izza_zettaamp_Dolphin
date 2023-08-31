@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CRUD operations using JSON and local storage in JavaScript</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Crud operation in javascript using local storage</h1>
+        <button onclick="deleteAll()">Delete All</button>
+        <br />
+        <fieldset>
+            <legend>
+                Book List
+            </legend>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>bookId</th>
+                        <th>name</th>
+                        <th>totalCount</th>
+                        <th>author</th>
+                        <th>description</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tblbody">
+                </tbody>
+            </table>
+        </fieldset>
+    </div>
+</body>
+</html>
+<script type="text/javascript">
+
+    bindBookData();
+    function addBookDataToLocalStorage(bookObj) {
+
+
+        //already has data in localstorage then update it other create new one
+        var books = JSON.parse(localStorage.getItem('bookData'));
+        if (books != null) {
+            books.push(bookObj);
+           
+            localStorage.setItem('bookData', JSON.stringify(books));
+        }
+        else {
+            var bookData = new Array();
+            bookData.push(bookObj);
+            localStorage.setItem('bookData', JSON.stringify(bookData));
+
+
+        }
+    }
+
+
+    function updateDataToLocalStorage(bookObj) {
+
+
+        var books = JSON.parse(localStorage.getItem('bookData'));
+        if (books != null) {
+            var book = books.filter((x) => x.id == bookObj.id).pop();
+            if (book != null) {
+                book.name = bookObj.name;
+                book.totalCount = bookObj.totalCount;
+                book.author = bookObj.author;
+                book.description = bookObj.description;
+            }
+            localStorage.setItem('bookData', JSON.stringify(books));
+        }
+    }
+
+
+    function deletedataFromLocalStorage(BookId) {
+
+
+        var books = JSON.parse(localStorage.getItem('bookData'));
+        if (books != null) {
+            books.splice(books.findIndex(a => a.id === BookId), 1)
+            localStorage.setItem('bookData', JSON.stringify(books));
+        }
+    }
+
+
+    function bindBookData() {
+        var books = JSON.parse(localStorage.getItem('bookData'));
+        if (books != null) {
+            document.getElementById('tblbody').innerHTML = "";
+            books.forEach(function (item, index) {
+                // debugger;
+                var btnEditId = "btnedit" + item.id;
+                var btnDeleteId = "btndelete" + item.id;
+                var tableRow = "<tr Id='" + item.id + "'   data-BookID='" + item.id + "'   data-name='" + item.name + "' data-totalCount='" + item.totalCount + "' data-author='" + item.author + "' data-description='" + item.description + "'>"
+                    + "<td class='td-data'>" + item.id + "</td>"
+                    + "<td class='td-data'>" + item.name + "</td>"
+                    + "<td class='td-data'>" + item.totalCount + "</td>"
+                    + "<td class='td-data'>" + item.author + "</td>"
+                    + "<td class='td-data'>" + item.description + "</td>"
+                    + "<td class='td-data'>" +
+                    "<button id='" + btnEditId + "' class='btn btn-info btn-xs btn-editbook' onclick='showEditRow(" + item.id + ")'><i class='fa fa-pencil' aria-hidden='true'></i>Edit Book</button>" +
+                    "<button id='" + btnDeleteId + "' class='btn btn-danger btn-xs btn-deleteBook' onclick='deleteRow(" + item.id + ")'><i class='fa fa-trash' aria-hidden='true'>Delete Book</button>"
+                    + "</td>"
+                    + "</tr>";
+                document.getElementById('tblbody').innerHTML += tableRow;
+            })
+        }
+        var AddRow = "<tr>"
+            + "<td class='td-data'></td>"
+            + "<td class='td-data'><input type='text' id='txtname' placeholder='name..'></td>"
+            + "<td class='td-data'><input type='number' id='txttotalCount' placeholder='total count..'></td>"
+            + "<td class='td-data'><input type='text' id='txtauthor' placeholder='author..'></td>"
+            + "<td class='td-data'><input type='text' id='txtdescription' placeholder='description..'></td>"
+            + "<td class='td-data'>" + "<button id= 'btnaddBook' onclick='addBook()' class='btn btn-success'> <i class='fa fa-plus-circle' aria-hidden='true'></i>Add Book</button>" + "</td>"
+            + "</tr>";
+        document.getElementById('tblbody').innerHTML += AddRow;
+    }
+
+
+    function GetBookID() {
+        const ID = Date.now();
+        return ID;
+    }
+
+
+    function addBook() {
+        var BookId = GetBookID();
+        var txtname = document.getElementById("txtname").value;
+        if (!txtname) {
+            alert('Please enter book name!')
+            return false;
+        }
+        var totalCount = document.getElementById("txttotalCount").value;
+        if (!totalCount) {
+            alert('Please enter book totalCount!')
+            return false;
+        }
+        var author = document.getElementById("txtauthor").value;
+        if (!author) {
+            alert('Please enter book author!')
+            return false;
+        }
+        var description = document.getElementById("txtdescription").value;
+        if (!description) {
+            alert('Please enter book description!')
+            return false;
+        }
+
+        var bookObj = {
+            "id": BookId,
+            "name": txtname,
+            "totalCount": totalCount,
+            "author": author,
+            "description": description
+        };
+        addBookDataToLocalStorage(bookObj);
+        document.getElementById('txtname').value = "";
+        document.getElementById('txttotalCount').value = "";
+        document.getElementById('txtauthor').value = "";
+        document.getElementById('txtdescription').value = "";
+        bindBookData();
+    };
+
+
+    function showEditRow(BookID) {
+        var bookRow = document.getElementById(BookID); //this gives tr of  whose button was clicked
+        var trdata = bookRow.querySelectorAll(".td-data");
+        /*returns array of all elements with
+        "row-data" class within the row with given id*/
+        var bookID = trdata[0].innerHTML;
+        var bookName = trdata[1].innerHTML;
+        var booktotalCount = trdata[2].innerHTML;
+        var bookauthor = trdata[3].innerHTML;
+        var bookdescription = trdata[4].innerHTML;
+
+
+        trdata[0].innerHTML = '<input name="txtid"  disabled id="txtid" value="' + bookID + '"/>';
+        trdata[1].innerHTML = '<input name="txtname" id="txtname" value="' + bookName + '"/>';
+        trdata[2].innerHTML = '<input name="txttotalcount" id="txttotalcount" value="' + booktotalCount + '"/>';
+        trdata[3].innerHTML = '<input name="txtauthor" id="txtauthor" value="' + bookauthor + '"/>';
+        trdata[4].innerHTML = '<input name="txtdescription" id="txtdescription" value="' + bookdescription + '"/>';
+
+
+        trdata[5].innerHTML =
+            "<button class='btn btn-primary btn-xs btn-updateBook' onclick='updateBook(" + bookID + ")'>" +
+            "<i class='fa fa-pencil' aria-hidden='true'></i>Save</button>"
+            + "<button class='btn btn-warning btn-xs btn-cancelupdate' onclick='cancel(" + bookID + ")'><i class='fa fa-times' aria-hidden='true'></i>Cancel</button>"
+            + "<button class='btn btn-danger btn-xs btn-deleteBook' onclick='deleteBook(" + bookID + ")'>"
+            + "<i class='fa fa-trash' aria-hidden='true'></i>Delete Book</button>"
+    }
+
+
+    function cancel(BookID) {
+        // debugger;
+        var btneditId = "btnedit" + BookID;
+        var btndeleteId = "btndelete" + BookID;
+
+
+        var BookRow = document.getElementById(BookID); //this gives tr of  whose button was clicked
+        var data = BookRow.querySelectorAll(".td-data");
+
+
+        var name = BookRow.getAttribute("data-name");
+        var totalCount = BookRow.getAttribute("data-totalCount");
+        var author = BookRow.getAttribute("data-author");
+        var description = BookRow.getAttribute("data-description");
+
+
+        data[0].innerHTML = BookID;
+        data[1].innerHTML = name;
+        data[2].innerHTML = totalCount;
+        data[3].innerHTML = author;
+        data[4].innerHTML = description;
+        var actionbtn = "<button id='" + btneditId + "' class='btn btn-info btn-xs btn-editbook' onclick='showEditRow(" + BookID + ")'><i class='fa fa-pencil' aria-hidden='true'></i>Edit Book</button>" +
+            "<button id='" + btndeleteId + "' class='btn btn-danger btn-xs btn-deleteBook' onclick='deleteRow(" + BookID + ")'><i class='fa fa-trash' aria-hidden='true'>Delete Book</button>"
+        data[5].innerHTML = actionbtn;
+    }
+
+
+    function updateBook(BookID) {
+        var bookRow = document.getElementById(BookID); //this gives tr of  whose button was clicked
+        var data = bookRow.querySelectorAll(".td-data");
+        var name = data[1].querySelector("#txtname").value;
+        var totalCount = data[2].querySelector("#txttotalcount").value;
+        var author = data[3].querySelector("#txtauthor").value;
+        var description = data[4].querySelector("#txtdescription").value;
+        var bookObj = {
+            "id": BookID,
+            "name": name,
+            "totalCount": totalCount,
+            "author": author,
+            "description": description
+        };
+        updateDataToLocalStorage(bookObj);
+        bindBookData();
+    }
+
+
+    function deleteRow(BookID) {
+        deletedataFromLocalStorage(BookID);
+        bindBookData();
+    }
+
+
+    function deleteAll() {
+        localStorage.clear();
+    }
+
+
+</script>
