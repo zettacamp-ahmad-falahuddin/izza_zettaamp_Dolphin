@@ -9,7 +9,7 @@ const songList = [
             second: 22,
         },   
     },
-//izzaaaaaaaaa
+
     {
         title: "Blue Bird",
         artist: "Ikimono Gakari",
