@@ -14,7 +14,7 @@ const buku = [
   },
 ];
 
-function purchase(purchased, book, stock, discountPercentage, taxPercentage, termMonths) {
+async function purchase(purchased, book, stock, discountPercentage, taxPercentage, termMonths, additionalPrice = 1000) {
   const bookName = book.name;
   const bookPrc = book.price;
 
@@ -47,6 +47,16 @@ function purchase(purchased, book, stock, discountPercentage, taxPercentage, ter
 
   console.log('stock now:', stock);
 
+  console.log('due to policy we add additional price when using credit, please wait for the calculations...');
+
+  for (let i = 0; i < termMonths; i++) {
+    term[i].addtitionalPrice = additionalPrice;
+  }
+
+  // await (function (ms) {
+  //   return new Promise((res) => setTimeout(res, ms));
+  // })(2000);
+
   console.log(`if you would to use credit for ${termMonths} months:`);
 
   console.log(`the next 1 month due is`, month1);
@@ -60,7 +70,6 @@ app.use(express.json());
 
 app.use((req, res, next) => {
   const authheader = req.headers.authorization;
-  console.log(req.headers);
 
   if (!authheader) {
     let err = new Error('You are not authenticated!');
@@ -84,23 +93,26 @@ app.use((req, res, next) => {
   }
 });
 
-app.get('/book', (_, res) => {
+app.get('/', (_, res) => {
   console.log('Selamat datang, wahai list buku ada di response');
 
   res.json(buku);
 });
 
-app.post('/book', (req, res) => {
+app.post('/', async (req, res) => {
   const purchased = req.body.purchased;
   const book = req.body.book;
   const stock = req.body.stock;
   const discountPercentage = req.body.discountPercentage;
   const taxPercentage = req.body.taxPercentage;
   const termMonths = req.body.termMonths;
+  const additionalPrice = req.body.additionalPrice;
 
-  const hasil = purchase(purchased, book[0], stock, discountPercentage, taxPercentage, termMonths);
-
+  const hasil = await purchase(purchased, book[0], stock, discountPercentage, taxPercentage, termMonths, additionalPrice);
+  
   res.json(hasil);
+  
+  // hasil.then((response) => res.json(response));
 });
 
-app.listen(8080);
+app.listen(3000);
