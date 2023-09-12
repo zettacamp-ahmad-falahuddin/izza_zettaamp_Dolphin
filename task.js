@@ -53,10 +53,6 @@ async function purchase(purchased, book, stock, discountPercentage, taxPercentag
     term[i].addtitionalPrice = additionalPrice;
   }
 
-  // await (function (ms) {
-  //   return new Promise((res) => setTimeout(res, ms));
-  // })(2000);
-
   console.log(`if you would to use credit for ${termMonths} months:`);
 
   console.log(`the next 1 month due is`, month1);
@@ -64,6 +60,15 @@ async function purchase(purchased, book, stock, discountPercentage, taxPercentag
   console.log(`the next other months due in array is`, otherMonths);
 
   return term;
+}
+
+async function endpoint() {
+  for (let i = 0; i < 5; i++) {
+    console.log('iterasi', i);
+    await (function (ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    })(2000);
+  }
 }
 
 app.use(express.json());
@@ -109,10 +114,24 @@ app.post('/', async (req, res) => {
   const additionalPrice = req.body.additionalPrice;
 
   const hasil = await purchase(purchased, book[0], stock, discountPercentage, taxPercentage, termMonths, additionalPrice);
-  
+
   res.json(hasil);
-  
-  // hasil.then((response) => res.json(response));
+});
+
+app.get('/endpoint1', async (req, res) => {
+  console.log('Selamat datang, wahai ini adalah endpoint1');
+
+  await endpoint();
+  res.send('selamat looping telah selesai');
+  console.log('proses selesai');
+});
+
+app.get('/endpoint2', (req, res) => {
+  console.log('Selamat datang, wahai ini adalah endpoint2');
+
+  endpoint();
+  res.send('selamat looping telah selesai');
+  console.log('proses selesai');
 });
 
 app.listen(3000);
