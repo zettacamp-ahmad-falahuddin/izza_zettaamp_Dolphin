@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const express = require('express');
 
+const app = express();
+
 const {
   readAllDocumentsBook,
   readManyDocumentsBooksbypriceRange,
@@ -15,53 +17,85 @@ const {
 
 const Book = require('./models/Book.model');
 
-const app = express();
-
 const booksList = [
   {
-    _id: 1,
     book_name: 'Filosofi Teras',
     book_price: 50000,
   },
   {
-    _id: 2,
     book_name: 'Atomic Habits',
     book_price: 60000,
   },
   {
-    _id: 3,
     book_name: 'Pulang',
     book_price: 65000,
   },
   {
-    _id: 4,
     book_name: 'Pergi',
     book_price: 100000,
   },
   {
-    _id: 5,
     book_name: 'Komet',
     book_price: 90000,
   },
   {
-    _id: 6,
     book_name: 'Prisoner of Azkaban',
     book_price: 95000,
   },
   {
-    _id: 7,
     book_name: 'Chamber of Secrets',
     book_price: 75000,
   },
   {
-    _id: 8,
     book_name: '1001 Malam',
     book_price: 85000,
   },
   {
-    _id: 9,
     book_name: 'The Wall',
     book_price: 80000,
+  },
+];
+
+const {
+  readAllDocumentsBookshelf,
+  readManyDocumentsBookshelvesbybooks_id,
+  readOneDocumentBookshelfby_id,
+  addManyDocumentsBookshelves,
+  addOneDocumentBookshelf,
+  updateOneDocumentBookshelfPush,
+  updateOneDocumentBookshelfPull,
+  deleteAllDocumentsBookshelves,
+  deleteManyDocumentsBookshelvesbybooks_id,
+  deleteOneDocumentBookshelf,
+} = require('./bookshelfFunction/bookshelfMongo.function');
+
+const Bookshelf = require('./models/Bookshelf.model');
+
+const bookshelvesList = [
+  {
+    _id: 1,
+    books_id: [
+      new mongoose.Types.ObjectId('65091357e2868114487f4cf8'),
+      new mongoose.Types.ObjectId('65091357e2868114487f4cfb'),
+      new mongoose.Types.ObjectId('65091357e2868114487f4cfb'),
+      new mongoose.Types.ObjectId('65091357e2868114487f4cf9'),
+    ],
+  },
+  {
+    _id: 2,
+    books_id: [new mongoose.Types.ObjectId('65091357e2868114487f4cf7'), new mongoose.Types.ObjectId('65091357e2868114487f4cfd')],
+  },
+  {
+    _id: 3,
+    books_id: [
+      new mongoose.Types.ObjectId('65091357e2868114487f4cff'),
+      new mongoose.Types.ObjectId('65091357e2868114487f4cff'),
+      new mongoose.Types.ObjectId('65091357e2868114487f4cfe'),
+    ],
+  },
+  {
+    _id: 4,
+    books_id: [new mongoose.Types.ObjectId('65091357e2868114487f4cfc'), new mongoose.Types.ObjectId('65091357e2868114487f4cfd')],
   },
 ];
 
@@ -76,6 +110,7 @@ async function connectMongoDB() {
     .then(async () => {
       try {
         // await Book.insertMany(booksList);
+        // await Bookshelf.insertMany(bookshelvesList);
       } catch (error) {
         return error.message;
       }
@@ -87,6 +122,17 @@ async function connectMongoDB() {
 connectMongoDB();
 
 app.use(express.json());
+
+app.get('/', async (_, res) => {
+  console.log('Selamat datang, wahai list bookshelf dan buku di response');
+
+  const bookshelves_and_books = {
+    bookshelves: bookshelvesList,
+    books: booksList,
+  };
+
+  res.json(bookshelves_and_books);
+});
 
 ///////////////////////////////////////// BOOK /////////////////////////////////////
 
@@ -176,15 +222,116 @@ app.post('/book/deleteBook', async (req, res) => {
   res.json(book);
 });
 
+/////////////////////////////////////// BOOKSHELF /////////////////////////////////////
+
+app.get('/bookshelves', async (_, res) => {
+  console.log('Selamat datang, wahai list bookshelf di response');
+
+  const bookshelves = await readAllDocumentsBookshelf();
+
+  res.json(bookshelves);
+});
+
+app.get('/bookshelves/bybooks_id', async (req, res) => {
+  console.log('Selamat datang, wahai list bookshelf di response');
+
+  const { books_id } = req.body;
+
+  const bookshelves = await readManyDocumentsBookshelvesbybooks_id(books_id);
+
+  res.json(bookshelves);
+});
+
+app.get('/bookshelf/bybookshelf_id', async (req, res) => {
+  console.log('Selamat datang, wahai bookshelf di response');
+
+  const { _id } = req.body;
+
+  const bookshelf = await readOneDocumentBookshelfby_id(_id);
+
+  res.json(bookshelf);
+});
+
+app.post('/bookshelves/addbookshelves', async (req, res) => {
+  console.log('Selamat datang, wahai tambahkan list bookshelf di request');
+
+  const { bookshelvesList } = req.body;
+
+  const bookshelves = await addManyDocumentsBookshelves(bookshelvesList);
+
+  res.json(bookshelves);
+});
+
+app.post('/bookshelf/addbookshelf', async (req, res) => {
+  console.log('Selamat datang, wahai tambahkan bookshelf di request');
+
+  const { _id, books_id } = req.body;
+
+  const bookshelf = await addOneDocumentBookshelf(_id, books_id);
+
+  res.json(bookshelf);
+});
+
+app.post('/bookshelf/updatebookshelf', async (req, res) => {
+  console.log('Selamat datang, wahai update bookshelf di request');
+
+  const { _id, books_id_push, books_id_pull } = req.body;
+
+  if (books_id_pull === undefined) {
+    const bookshelf = await updateOneDocumentBookshelfPush(_id, books_id_push, books_id_pull);
+    res.json(bookshelf);
+  } else if (books_id_push === undefined) {
+    const bookshelf = await updateOneDocumentBookshelfPull(_id, books_id_push, books_id_pull);
+    res.json(bookshelf);
+  } else if (books_id_pull !== undefined && books_id_push !== undefined) {
+    let bookshelf = await updateOneDocumentBookshelfPush(_id, books_id_push, books_id_pull);
+    const message1 = bookshelf;
+    bookshelf = await updateOneDocumentBookshelfPull(_id, books_id_push, books_id_pull);
+
+    res.json({
+      push: message1,
+      pull: bookshelf,
+    });
+  }
+});
+
+app.post('/bookshelves/deletebookshelves', async (_, res) => {
+  console.log('Selamat datang, wahai delete bookshelves di request');
+
+  const bookshelves = await deleteAllDocumentsBookshelves();
+
+  res.json(bookshelves);
+});
+
+app.post('/bookshelves/deletebookshelvesbybooks_id', async (req, res) => {
+  console.log('Selamat datang, wahai delete bookshelves di request');
+
+  const { books_id } = req.body;
+
+  const bookshelves = await deleteManyDocumentsBookshelvesbybooks_id(books_id);
+
+  res.json(bookshelves);
+});
+
+app.post('/bookshelf/deletebookshelf', async (req, res) => {
+  console.log('Selamat datang, wahai delete bookshelves di request');
+
+  const { _id } = req.body;
+
+  const bookshelf = await deleteOneDocumentBookshelf(_id);
+
+  res.json(bookshelf);
+});
+
 app.get('/test', async (_, res) => {
   console.log('Selamat datang, wahai populate di request');
 
-  const users_books = User.aggregate()
+  const bookshelves_books = Bookshelf.aggregate()
     .lookup({
       from: 'books',
-      localField: 'favourite_books_id',
+      localField: 'books_id',
       foreignField: '_id',
-      as: 'favourite_books',
+      as: 'books',
     })
     .exec((error, result) => {
       if (error) {
@@ -195,136 +342,23 @@ app.get('/test', async (_, res) => {
     });
 });
 
+app.get('/test1', async (_, res) => {
+  console.log('Selamat datang, wahai populate di request');
+
+  const bookshelves = await Bookshelf.find({
+    books_id: [4],
+  });
+
+  res.json(bookshelves);
+});
+
+app.get('/test2', async (_, res) => {
+  console.log('Selamat datang, wahai populate di request');
+
+  const bookshelves_books = Bookshelf.find({})
+    .populate('books_id')
+    .then((bookshelf) => res.json(bookshelf))
+    .catch((error) => res.json(error));
+});
+
 app.listen(3000);
-
-// const {
-//   readAllDocumentsUser,
-//   readManyDocumentsUsersbyfavourite_books_id,
-//   readOneDocumentUserbyuser_name,
-//   addManyDocumentsUser,
-//   addOneDocumentUser,
-//   updateOneDocumentUser,
-//   deleteAllDocumentsUser,
-//   deleteManyDocumentsUsersbyfavourite_books_id,
-//   deleteOneDocumentUser,
-// } = require('./userFunction/userMongo.function');
-
-// const User = require('./models/User.model');
-
-// const usersList = [
-//   {
-//     user_name: 'Izza',
-//     favourite_books_id: [1, 4, 7, 9],
-//   },
-//   {
-//     user_name: 'Bayu',
-//     favourite_books_id: [2, 3],
-//   },
-//   {
-//     user_name: 'Edo',
-//     favourite_books_id: [4, 5, 9],
-//   },
-//   {
-//     user_name: 'Daffa',
-//     favourite_books_id: [6, 8],
-//   },
-// ];
-
-///////////////////////////////////////// USER /////////////////////////////////////
-
-// app.get('/', async (_, res) => {
-//   console.log('Selamat datang, wahai list user dan buku di response');
-
-//   const users_and_books = {
-//     users: usersList,
-//     books: booksList,
-//   };
-
-//   res.json(users_and_books);
-// });
-
-// app.get('/users', async (_, res) => {
-//   console.log('Selamat datang, wahai list user di response');
-
-//   const users = await readAllDocumentsUser();
-
-//   res.json(users);
-// });
-
-// app.get('/users/byfavourite_books_id', async (req, res) => {
-//   console.log('Selamat datang, wahai list user di response');
-
-//   const { favourite_books_id } = req.body;
-
-//   const users = await readManyDocumentsUsersbyfavourite_books_id(favourite_books_id);
-
-//   res.json(users);
-// });
-
-// app.get('/user/byuser_name', async (req, res) => {
-//   console.log('Selamat datang, wahai user di response');
-
-//   const { user_name } = req.body;
-
-//   const user = await readOneDocumentUserbyuser_name(user_name);
-
-//   res.json(user);
-// });
-
-// app.post('/users/addUsers', async (req, res) => {
-//   console.log('Selamat datang, wahai tambahkan list user di request');
-
-//   const { usersList } = req.body;
-
-//   const users = await addManyDocumentsUser(usersList);
-
-//   res.json(users);
-// });
-
-// app.post('/user/addUser', async (req, res) => {
-//   console.log('Selamat datang, wahai tambahkan user di request');
-
-//   const { user_name, favourite_books_id } = req.body;
-
-//   const user = await addOneDocumentUser(user_name, favourite_books_id);
-
-//   res.json(user);
-// });
-
-// app.post('/user/updateUser', async (req, res) => {
-//   console.log('Selamat datang, wahai update user di request');
-
-//   const { user_name, user_name_set, favourite_books_id_set } = req.body;
-
-//   const user = await updateOneDocumentUser(user_name, user_name_set, favourite_books_id_set);
-
-//   res.json(user);
-// });
-
-// app.post('/users/deleteUsers', async (_, res) => {
-//   console.log('Selamat datang, wahai delete users di request');
-
-//   const users = await deleteAllDocumentsUser();
-
-//   res.json(users);
-// });
-
-// app.post('/users/deleteUsersbyfavourite_books_id', async (req, res) => {
-//   console.log('Selamat datang, wahai delete users di request');
-
-//   const { favourite_books_id } = req.body;
-
-//   const users = await deleteManyDocumentsUsersbyfavourite_books_id(favourite_books_id);
-
-//   res.json(users);
-// });
-
-// app.post('/user/deleteUser', async (req, res) => {
-//   console.log('Selamat datang, wahai delete users di request');
-
-//   const { user_name } = req.body;
-
-//   const user = await deleteOneDocumentUser(user_name);
-
-//   res.json(user);
-// });

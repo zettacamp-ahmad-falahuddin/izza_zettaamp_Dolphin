@@ -63,6 +63,9 @@ async function addOneDocumentBook(_id, book_name, book_price) {
 ///////////////////////////////////////// UPDATE ONE DOCUMENT BOOK /////////////////////////////////////
 
 async function updateOneDocumentBook(book_name, book_name_set, book_price_set) {
+  if (book_name_set === undefined || book_price_set === undefined) 
+    return ' book_name_set, book_price_set cannot be null';
+
   const book = await Book.updateOne(
     {
       book_name: book_name,

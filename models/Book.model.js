@@ -1,10 +1,6 @@
 const mongoose = require('mongoose');
 
 const bookSchema = new mongoose.Schema({
-  _id: {
-    type: Number,
-    required: true,
-  },
   book_name: {
     type: String,
     required: true,
@@ -14,7 +10,6 @@ const bookSchema = new mongoose.Schema({
     required: true,
     min: 50000,
     max: 100000,
-    default: 50000
   },
 });
 
