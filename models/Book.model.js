@@ -11,6 +11,10 @@ const bookSchema = new mongoose.Schema({
     min: 50000,
     max: 100000,
   },
+  book_genre: {
+    type: String,
+    required: true,
+  },
 });
 
 module.exports = mongoose.model('Book', bookSchema);
