@@ -6,6 +6,8 @@ const app = express();
 const {
   readAllDocumentsBook,
   readManyDocumentsBooksbypriceRange,
+  readManyDocumentsBooksbysomeFields,
+  readManyDocumentsBooksbyaddFields,
   readOneDocumentBookbybook_name,
   addManyDocumentsBook,
   addOneDocumentBook,
@@ -21,44 +23,54 @@ const booksList = [
   {
     book_name: 'Filosofi Teras',
     book_price: 50000,
+    book_genre: 'Self Development',
   },
   {
     book_name: 'Atomic Habits',
     book_price: 60000,
+    book_genre: 'Self Development',
   },
   {
     book_name: 'Pulang',
     book_price: 65000,
+    book_genre: 'Drama',
   },
   {
     book_name: 'Pergi',
     book_price: 100000,
+    book_genre: 'Drama',
   },
   {
     book_name: 'Komet',
     book_price: 90000,
+    book_genre: 'Science Fiction',
   },
   {
     book_name: 'Prisoner of Azkaban',
     book_price: 95000,
+    book_genre: 'Drama',
   },
   {
     book_name: 'Chamber of Secrets',
     book_price: 75000,
+    book_genre: 'Drama',
   },
   {
     book_name: '1001 Malam',
     book_price: 85000,
+    book_genre: 'Wisdom',
   },
   {
     book_name: 'The Wall',
     book_price: 80000,
+    book_genre: 'Horror',
   },
 ];
 
 const {
   readAllDocumentsBookshelf,
   readManyDocumentsBookshelvesbybooks_id,
+  readManyDocumentsBookshelvesbybooks_idthenUnwindbooks_idthenPopulate,
   readOneDocumentBookshelfby_id,
   addManyDocumentsBookshelves,
   addOneDocumentBookshelf,
@@ -75,27 +87,27 @@ const bookshelvesList = [
   {
     _id: 1,
     books_id: [
-      new mongoose.Types.ObjectId('65091357e2868114487f4cf8'),
-      new mongoose.Types.ObjectId('65091357e2868114487f4cfb'),
-      new mongoose.Types.ObjectId('65091357e2868114487f4cfb'),
-      new mongoose.Types.ObjectId('65091357e2868114487f4cf9'),
+      new mongoose.Types.ObjectId('650a63519ac9d512d4a3ba5e'),
+      new mongoose.Types.ObjectId('650a63519ac9d512d4a3ba60'),
+      new mongoose.Types.ObjectId('650a63519ac9d512d4a3ba62'),
+      new mongoose.Types.ObjectId('650a63519ac9d512d4a3ba64'),
     ],
   },
   {
     _id: 2,
-    books_id: [new mongoose.Types.ObjectId('65091357e2868114487f4cf7'), new mongoose.Types.ObjectId('65091357e2868114487f4cfd')],
+    books_id: [new mongoose.Types.ObjectId('650a63519ac9d512d4a3ba65'), new mongoose.Types.ObjectId('650a63519ac9d512d4a3ba61')],
   },
   {
     _id: 3,
     books_id: [
-      new mongoose.Types.ObjectId('65091357e2868114487f4cff'),
-      new mongoose.Types.ObjectId('65091357e2868114487f4cff'),
-      new mongoose.Types.ObjectId('65091357e2868114487f4cfe'),
+      new mongoose.Types.ObjectId('650a63519ac9d512d4a3ba66'),
+      new mongoose.Types.ObjectId('650a63519ac9d512d4a3ba5f'),
+      new mongoose.Types.ObjectId('650a63519ac9d512d4a3ba60'),
     ],
   },
   {
     _id: 4,
-    books_id: [new mongoose.Types.ObjectId('65091357e2868114487f4cfc'), new mongoose.Types.ObjectId('65091357e2868114487f4cfd')],
+    books_id: [new mongoose.Types.ObjectId('650a63519ac9d512d4a3ba62'), new mongoose.Types.ObjectId('650a63519ac9d512d4a3ba63')],
   },
 ];
 
@@ -152,6 +164,26 @@ app.get('/books/bypriceRange', async (req, res) => {
   const books = await readManyDocumentsBooksbypriceRange(priceBottom, priceTop);
 
   res.json(books);
+});
+
+app.get('/books/bysomeFields', async (req, res) => {
+  console.log('Selamat datang, wahai list book di response');
+
+  const { book_name, book_price, book_genre } = req.body;
+
+  const books = await readManyDocumentsBooksbysomeFields(book_name, book_price, book_genre);
+
+  res.json(books);
+});
+
+app.get('/books/byaddFields', async (req, res) => {
+  console.log('Selamat datang, wahai list book di response');
+
+  const { priceBottom, field_name, field_value } = req.body;
+
+  const book = await readManyDocumentsBooksbyaddFields(priceBottom, field_name, field_value);
+
+  res.json(book);
 });
 
 app.get('/book/bybook_name', async (req, res) => {
@@ -238,6 +270,16 @@ app.get('/bookshelves/bybooks_id', async (req, res) => {
   const { books_id } = req.body;
 
   const bookshelves = await readManyDocumentsBookshelvesbybooks_id(books_id);
+
+  res.json(bookshelves);
+});
+
+app.get('/bookshelves/bybooks_idthenUnwindbooks_idthenPopulate', async (req, res) => {
+  console.log('Selamat datang, wahai list bookshelf di response');
+
+  const { books_id } = req.body;
+
+  const bookshelves = await readManyDocumentsBookshelvesbybooks_idthenUnwindbooks_idthenPopulate(books_id);
 
   res.json(bookshelves);
 });
@@ -355,10 +397,8 @@ app.get('/test1', async (_, res) => {
 app.get('/test2', async (_, res) => {
   console.log('Selamat datang, wahai populate di request');
 
-  const bookshelves_books = Bookshelf.find({})
-    .populate('books_id')
-    .then((bookshelf) => res.json(bookshelf))
-    .catch((error) => res.json(error));
+  const bookshelves_books = await Bookshelf.find({}).populate('books_id');
+  res.json(bookshelves_books);
 });
 
 app.listen(3000);

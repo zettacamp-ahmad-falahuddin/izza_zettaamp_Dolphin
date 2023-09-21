@@ -25,6 +25,64 @@ async function readManyDocumentsBooksbypriceRange(priceBottom, priceTop) {
   return books;
 }
 
+async function readManyDocumentsBooksbysomeFields(book_name, book_price, book_genre) {
+  try {
+    if (book_name === undefined && book_price === undefined && book_genre === undefined) {
+      const books = Book.aggregate([
+        {
+          $project: { _id: 1 },
+        },
+      ]);
+      return books;
+    } else if (book_name === undefined) {
+      const books = Book.aggregate([
+        {
+          $project: { book_name: 0 },
+        },
+      ]);
+      return books;
+    } else if (book_price === undefined) {
+      const books = Book.aggregate([
+        {
+          $project: { book_price: 0 },
+        },
+      ]);
+      return books;
+    } else if (book_genre === undefined) {
+      const books = Book.aggregate([
+        {
+          $project: { book_genre: 0 },
+        },
+      ]);
+      return books;
+    }
+  } catch (error) {
+    return error.message;
+  }
+}
+
+async function readManyDocumentsBooksbyaddFields(priceBottom, field_name = 'label', field_value = 'Expensive') {
+  const books = Book.aggregate([
+    {
+      $match: {
+        book_price: { $gte: priceBottom },
+      },
+    },
+    {
+      $addFields: {
+        [`${field_name}`]: field_value,
+      },
+    },
+    {
+      $project: {
+        book_name: 1,
+        [`${field_name}`]: field_value,
+      },
+    },
+  ]);
+  return books;
+}
+
 ///////////////////////////////////////// READ ONE DOCUMENT BOOK /////////////////////////////////////
 
 async function readOneDocumentBookbybook_name(book_name) {
@@ -63,8 +121,7 @@ async function addOneDocumentBook(_id, book_name, book_price) {
 ///////////////////////////////////////// UPDATE ONE DOCUMENT BOOK /////////////////////////////////////
 
 async function updateOneDocumentBook(book_name, book_name_set, book_price_set) {
-  if (book_name_set === undefined || book_price_set === undefined) 
-    return ' book_name_set, book_price_set cannot be null';
+  if (book_name_set === undefined || book_price_set === undefined) return ' book_name_set, book_price_set cannot be null';
 
   const book = await Book.updateOne(
     {
@@ -117,6 +174,8 @@ async function deleteOneDocumentBook(book_name) {
 module.exports = {
   readAllDocumentsBook,
   readManyDocumentsBooksbypriceRange,
+  readManyDocumentsBooksbysomeFields,
+  readManyDocumentsBooksbyaddFields,
   readOneDocumentBookbybook_name,
   addManyDocumentsBook,
   addOneDocumentBook,

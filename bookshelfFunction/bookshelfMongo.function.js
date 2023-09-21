@@ -19,6 +19,41 @@ async function readManyDocumentsBookshelvesbybooks_id(books_id) {
   }
 }
 
+async function readManyDocumentsBookshelvesbybooks_idthenUnwindbooks_idthenPopulate(books_id) {
+  try {
+    const bookshelves = await Bookshelf.aggregate([
+      {
+        $match: {
+          books_id: { $in: books_id.map((e) => new mongoose.Types.ObjectId(e)) },
+        },
+      },
+      {
+        $unwind: '$books_id',
+      },
+      {
+        $lookup: {
+          from: 'books',
+          localField: 'books_id',
+          foreignField: '_id',
+          as: 'book',
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          books_id: 1,
+          book: {
+            $first: '$book',
+          },
+        },
+      },
+    ]);
+    return bookshelves;
+  } catch (error) {
+    return error.message;
+  }
+}
+
 ///////////////////////////////////////// READ ONE DOCUMENT Bookshelf /////////////////////////////////////
 
 async function readOneDocumentBookshelfby_id(_id) {
@@ -133,6 +168,7 @@ async function deleteOneDocumentBookshelf(_id) {
 module.exports = {
   readAllDocumentsBookshelf,
   readManyDocumentsBookshelvesbybooks_id,
+  readManyDocumentsBookshelvesbybooks_idthenUnwindbooks_idthenPopulate,
   readOneDocumentBookshelfby_id,
   addManyDocumentsBookshelves,
   addOneDocumentBookshelf,
