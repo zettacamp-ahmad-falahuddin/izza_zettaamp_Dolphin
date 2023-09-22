@@ -5,9 +5,13 @@ const app = express();
 
 const {
   readAllDocumentsBook,
+  readManyDocumentsBook_day6,
   readManyDocumentsBooksbypriceRange,
   readManyDocumentsBooksbysomeFields,
   readManyDocumentsBooksbyaddFields,
+  readManyDocumentsBooksbybook_genreMatch,
+  readManyDocumentsBooksbybook_priceCheapest,
+  readManyDocumentsBooksbybook_nameConcatbook_genre,
   readOneDocumentBookbybook_name,
   addManyDocumentsBook,
   addOneDocumentBook,
@@ -71,6 +75,7 @@ const {
   readAllDocumentsBookshelf,
   readManyDocumentsBookshelvesbybooks_id,
   readManyDocumentsBookshelvesbybooks_idthenUnwindbooks_idthenPopulate,
+  readManyDocumentsBookshelveslookup,
   readOneDocumentBookshelfby_id,
   addManyDocumentsBookshelves,
   addOneDocumentBookshelf,
@@ -156,6 +161,16 @@ app.get('/books', async (_, res) => {
   res.json(books);
 });
 
+app.get('/books/day6', async (req, res) => {
+  console.log('Selamat datang, wahai list book di response');
+  
+  const { book_genre, rating } = req.body;
+  
+  const books = await readManyDocumentsBook_day6(book_genre, rating);
+
+  res.json(books);
+});
+
 app.get('/books/bypriceRange', async (req, res) => {
   console.log('Selamat datang, wahai list book di response');
 
@@ -184,6 +199,32 @@ app.get('/books/byaddFields', async (req, res) => {
   const book = await readManyDocumentsBooksbyaddFields(priceBottom, field_name, field_value);
 
   res.json(book);
+});
+
+app.get('/books/byGenre', async (req, res) => {
+  console.log('Selamat datang, wahai list book di response');
+
+  const { book_genre } = req.body;
+
+  const books = await readManyDocumentsBooksbybook_genreMatch(book_genre);
+
+  res.json(books);
+});
+
+app.get('/books/sortbyPriceCheapest', async (_, res) => {
+  console.log('Selamat datang, wahai list book di response');
+
+  const books = await readManyDocumentsBooksbybook_priceCheapest();
+
+  res.json(books);
+});
+
+app.get('/books/concatNameGenre', async (_, res) => {
+  console.log('Selamat datang, wahai list book di response');
+
+  const books = await readManyDocumentsBooksbybook_nameConcatbook_genre();
+
+  res.json(books);
 });
 
 app.get('/book/bybook_name', async (req, res) => {
@@ -280,6 +321,14 @@ app.get('/bookshelves/bybooks_idthenUnwindbooks_idthenPopulate', async (req, res
   const { books_id } = req.body;
 
   const bookshelves = await readManyDocumentsBookshelvesbybooks_idthenUnwindbooks_idthenPopulate(books_id);
+
+  res.json(bookshelves);
+});
+
+app.get('/bookshelves/lookup', async (_, res) => {
+  console.log('Selamat datang, wahai list bookshelf di response');
+
+  const bookshelves = await readManyDocumentsBookshelveslookup();
 
   res.json(bookshelves);
 });

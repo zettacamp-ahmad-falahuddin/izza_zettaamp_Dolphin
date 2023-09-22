@@ -7,6 +7,36 @@ async function readAllDocumentsBook() {
   return books;
 }
 
+async function readManyDocumentsBook_day6(book_genre, rating) {
+  const books = Book.aggregate([
+    {
+      $match: {
+        book_genre: book_genre,
+      },
+    },
+    {
+      $addFields: {
+        rating: rating,
+      },
+    },
+    {
+      $project: {
+        book_name: 1,
+        book_price: 1,
+        boook_name_genre_rating: {
+          $concat: ['$book_name', ' - ', '$book_genre', ' - ', '$rating'],
+        },
+      },
+    },
+    {
+      $sort: {
+        book_price: 1,
+      },
+    },
+  ]);
+  return books;
+}
+
 async function readManyDocumentsBooksbypriceRange(priceBottom, priceTop) {
   if (priceTop === undefined) {
     const books = await Book.find({
@@ -77,6 +107,42 @@ async function readManyDocumentsBooksbyaddFields(priceBottom, field_name = 'labe
       $project: {
         book_name: 1,
         [`${field_name}`]: field_value,
+      },
+    },
+  ]);
+  return books;
+}
+
+async function readManyDocumentsBooksbybook_genreMatch(book_genre) {
+  const books = Book.aggregate([
+    {
+      $match: {
+        book_genre: book_genre,
+      },
+    },
+  ]);
+  return books;
+}
+
+async function readManyDocumentsBooksbybook_priceCheapest() {
+  const books = Book.aggregate([
+    {
+      $sort: {
+        book_price: 1,
+      },
+    },
+  ]);
+  return books;
+}
+
+async function readManyDocumentsBooksbybook_nameConcatbook_genre() {
+  const books = Book.aggregate([
+    {
+      $project: {
+        _id: 1,
+        boook_name_genre: {
+          $concat: ['$book_name', ' - ', '$book_genre'],
+        },
       },
     },
   ]);
@@ -173,9 +239,13 @@ async function deleteOneDocumentBook(book_name) {
 
 module.exports = {
   readAllDocumentsBook,
+  readManyDocumentsBook_day6,
   readManyDocumentsBooksbypriceRange,
   readManyDocumentsBooksbysomeFields,
   readManyDocumentsBooksbyaddFields,
+  readManyDocumentsBooksbybook_genreMatch,
+  readManyDocumentsBooksbybook_priceCheapest,
+  readManyDocumentsBooksbybook_nameConcatbook_genre,
   readOneDocumentBookbybook_name,
   addManyDocumentsBook,
   addOneDocumentBook,

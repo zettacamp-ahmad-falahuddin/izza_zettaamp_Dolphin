@@ -54,6 +54,43 @@ async function readManyDocumentsBookshelvesbybooks_idthenUnwindbooks_idthenPopul
   }
 }
 
+async function readManyDocumentsBookshelveslookup() {
+  const bookshelves = await Bookshelf.aggregate([
+    {
+      $lookup: {
+        from: 'books',
+        localField: 'books_id',
+        foreignField: '_id',
+        as: 'books',
+      },
+    },
+    {
+      $match: {
+        'books.book_genre': 'Self Development',
+      },
+    },
+    {
+      $addFields: {
+        shelfcontainSelfDevelopment: 'Yes',
+      },
+    },
+    {
+      $project: {
+        books: 1,
+        _id: {
+          $concat: [{ $toString: '$_id' }, ' - ', 'Self Development', ' - ', '$shelfcontainSelfDevelopment'],
+        },
+      },
+    },
+    {
+      $sort: {
+        _id: -1,
+      },
+    },
+  ]);
+  return bookshelves;
+}
+
 ///////////////////////////////////////// READ ONE DOCUMENT Bookshelf /////////////////////////////////////
 
 async function readOneDocumentBookshelfby_id(_id) {
@@ -169,6 +206,7 @@ module.exports = {
   readAllDocumentsBookshelf,
   readManyDocumentsBookshelvesbybooks_id,
   readManyDocumentsBookshelvesbybooks_idthenUnwindbooks_idthenPopulate,
+  readManyDocumentsBookshelveslookup,
   readOneDocumentBookshelfby_id,
   addManyDocumentsBookshelves,
   addOneDocumentBookshelf,
