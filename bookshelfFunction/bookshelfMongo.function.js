@@ -54,6 +54,20 @@ async function readManyDocumentsBookshelvesbybooks_idthenUnwindbooks_idthenPopul
   }
 }
 
+async function readManyDocumentsBookshelveslookup() {
+  const bookshelves = await Bookshelf.aggregate([
+    {
+      $lookup: {
+        from: 'books',
+        localField: 'books_id',
+        foreignField: '_id',
+        as: 'books',
+      },
+    },
+  ]);
+  return bookshelves;
+}
+
 ///////////////////////////////////////// READ ONE DOCUMENT Bookshelf /////////////////////////////////////
 
 async function readOneDocumentBookshelfby_id(_id) {
@@ -169,6 +183,7 @@ module.exports = {
   readAllDocumentsBookshelf,
   readManyDocumentsBookshelvesbybooks_id,
   readManyDocumentsBookshelvesbybooks_idthenUnwindbooks_idthenPopulate,
+  readManyDocumentsBookshelveslookup,
   readOneDocumentBookshelfby_id,
   addManyDocumentsBookshelves,
   addOneDocumentBookshelf,

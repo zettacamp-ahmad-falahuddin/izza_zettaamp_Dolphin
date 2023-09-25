@@ -5,9 +5,14 @@ const app = express();
 
 const {
   readAllDocumentsBook,
+  readManyDocumentsBook_day6,
+  readManyDocumentsBook_day7,
   readManyDocumentsBooksbypriceRange,
   readManyDocumentsBooksbysomeFields,
   readManyDocumentsBooksbyaddFields,
+  readManyDocumentsBooksbybook_genreMatch,
+  readManyDocumentsBooksbybook_priceCheapest,
+  readManyDocumentsBooksbybook_nameConcatbook_genre,
   readOneDocumentBookbybook_name,
   addManyDocumentsBook,
   addOneDocumentBook,
@@ -48,12 +53,12 @@ const booksList = [
   {
     book_name: 'Prisoner of Azkaban',
     book_price: 95000,
-    book_genre: 'Drama',
+    book_genre: 'Mystery',
   },
   {
     book_name: 'Chamber of Secrets',
     book_price: 75000,
-    book_genre: 'Drama',
+    book_genre: 'Mystery',
   },
   {
     book_name: '1001 Malam',
@@ -67,10 +72,128 @@ const booksList = [
   },
 ];
 
+const booksList1 = [
+  {
+    book_name: 'Introvert',
+    book_price: 57000,
+    book_genre: 'Self Development',
+  },
+  {
+    book_name: 'Deathly Hallows',
+    book_price: 88000,
+    book_genre: 'Mystery',
+  },
+  {
+    book_name: 'Nasrudin',
+    book_price: 65000,
+    book_genre: 'Wisdom',
+  },
+  {
+    book_name: 'Matahari',
+    book_price: 90000,
+    book_genre: 'Science Fiction',
+  },
+  {
+    book_name: 'Negeri Para Bedebah',
+    book_price: 75000,
+    book_genre: 'Drama',
+  },
+  {
+    book_name: 'Historia',
+    book_price: 85000,
+    book_genre: 'Historical',
+  },
+  {
+    book_name: 'World Aircraft',
+    book_price: 81000,
+    book_genre: 'Historical',
+  },
+];
+
+const booksList2 = [
+  {
+    book_name: 'Selena',
+    book_price: 79000,
+    book_genre: 'Science Fiction',
+  },
+  {
+    book_name: 'Introduction to Thermal System Engineering',
+    book_price: 90000,
+    book_genre: 'Engineering',
+  },
+  {
+    book_name: 'Dynamics',
+    book_price: 65000,
+    book_genre: 'Engineering',
+  },
+  {
+    book_name: 'Bedebah di Ujung Tanduk',
+    book_price: 100000,
+    book_genre: 'Drama',
+  },
+  {
+    book_name: 'Statics',
+    book_price: 90000,
+    book_genre: 'Engineering',
+  },
+  {
+    book_name: 'Negeri di Ujung Tanduk',
+    book_price: 95000,
+    book_genre: 'Drama',
+  },
+  {
+    book_name: 'Orbital Mechanics',
+    book_price: 75000,
+    book_genre: 'Engineering',
+  },
+  {
+    book_name: 'Fundamental of Aerodynamics',
+    book_price: 85000,
+    book_genre: 'Engineering',
+  },
+  {
+    book_name: 'Fluid Mechanics',
+    book_price: 80000,
+    book_genre: 'Engineering',
+  },
+];
+
+const booksList3 = [
+  {
+    book_name: 'Kanban',
+    book_price: 98000,
+    book_genre: 'Self Development',
+  },
+  {
+    book_name: 'They',
+    book_price: 93000,
+    book_genre: 'Horror',
+  },
+];
+
+const booksList4 = [
+  {
+    book_name: 'Bumi',
+    book_price: 50000,
+    book_genre: 'Science Fiction',
+  },
+  {
+    book_name: 'Sagaras',
+    book_price: 77000,
+    book_genre: 'Science Fiction',
+  },
+  {
+    book_name: 'Nebula',
+    book_price: 60000,
+    book_genre: 'Science Fiction',
+  },
+];
+
 const {
   readAllDocumentsBookshelf,
   readManyDocumentsBookshelvesbybooks_id,
   readManyDocumentsBookshelvesbybooks_idthenUnwindbooks_idthenPopulate,
+  readManyDocumentsBookshelveslookup,
   readOneDocumentBookshelfby_id,
   addManyDocumentsBookshelves,
   addOneDocumentBookshelf,
@@ -121,7 +244,7 @@ async function connectMongoDB() {
     })
     .then(async () => {
       try {
-        // await Book.insertMany(booksList);
+        // await Book.insertMany(booksList4);
         // await Bookshelf.insertMany(bookshelvesList);
       } catch (error) {
         return error.message;
@@ -156,6 +279,26 @@ app.get('/books', async (_, res) => {
   res.json(books);
 });
 
+app.get('/books/day6', async (req, res) => {
+  console.log('Selamat datang, wahai list book di response');
+
+  const { book_genre, rating } = req.body;
+
+  const books = await readManyDocumentsBook_day6(book_genre, rating);
+
+  res.json(books);
+});
+
+app.get('/books/day7', async (req, res) => {
+  console.log('Selamat datang, wahai list book di response');
+
+  const { count, page } = req.body;
+
+  const books = await readManyDocumentsBook_day7(count, page);
+
+  res.json(books);
+});
+
 app.get('/books/bypriceRange', async (req, res) => {
   console.log('Selamat datang, wahai list book di response');
 
@@ -184,6 +327,32 @@ app.get('/books/byaddFields', async (req, res) => {
   const book = await readManyDocumentsBooksbyaddFields(priceBottom, field_name, field_value);
 
   res.json(book);
+});
+
+app.get('/books/byGenre', async (req, res) => {
+  console.log('Selamat datang, wahai list book di response');
+
+  const { book_genre } = req.body;
+
+  const books = await readManyDocumentsBooksbybook_genreMatch(book_genre);
+
+  res.json(books);
+});
+
+app.get('/books/sortbyPriceCheapest', async (_, res) => {
+  console.log('Selamat datang, wahai list book di response');
+
+  const books = await readManyDocumentsBooksbybook_priceCheapest();
+
+  res.json(books);
+});
+
+app.get('/books/concatNameGenre', async (_, res) => {
+  console.log('Selamat datang, wahai list book di response');
+
+  const books = await readManyDocumentsBooksbybook_nameConcatbook_genre();
+
+  res.json(books);
 });
 
 app.get('/book/bybook_name', async (req, res) => {
@@ -280,6 +449,14 @@ app.get('/bookshelves/bybooks_idthenUnwindbooks_idthenPopulate', async (req, res
   const { books_id } = req.body;
 
   const bookshelves = await readManyDocumentsBookshelvesbybooks_idthenUnwindbooks_idthenPopulate(books_id);
+
+  res.json(bookshelves);
+});
+
+app.get('/bookshelves/lookup', async (_, res) => {
+  console.log('Selamat datang, wahai list bookshelf di response');
+
+  const bookshelves = await readManyDocumentsBookshelveslookup();
 
   res.json(bookshelves);
 });
